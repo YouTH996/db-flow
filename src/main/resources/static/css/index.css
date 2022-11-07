@@ -1,0 +1,36 @@
+.header{
+    background: #000000;
+    height: 40px;
+    line-height: 40px;
+    display: flex;
+    width: 100%;
+}
+
+.menu-item{
+    color: #FFFFFF;
+    font-size: 14px;
+    margin-left: 40px;
+    border-bottom:none;
+    cursor: pointer;
+}
+
+.menu-item a{
+    text-decoration:none !important;
+    color: #FFFFFF;
+}
+
+.active{
+    color: #ebb563;
+    font-size: 16px;
+    border-bottom: #ebb563 solid 1px;
+}
+
+ .active a{
+     color: #ebb563;
+}
+
+#map {
+    width: 100%;
+    height: 800px;
+    position: absolute;
+}

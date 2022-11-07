@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="/static/css/elementui.css">
+    <link rel="stylesheet" href="/static/css/index.css">
+
+</head>
+<body>
+<div id="app">
+    <div class="header">
+        <div class="menu-item">
+            <a href="javascript:window.location.href='index.html'">首页</a>
+        </div>
+        <div class="menu-item active">
+            <a href="javascript:window.location.href='db.html'">数据库工具</a>
+        </div>
+    </div>
+    <div class="content">
+        <el-row>
+            <el-col :span="12">
+                <el-card>
+                    <el-form :model="dataForm" label-width="80px">
+                        <el-form-item label="Host">
+                            <el-input v-model="dataForm.host" placeholder="请输入Host"></el-input>
+                        </el-form-item>
+                        <el-form-item label="Port">
+                            <el-input v-model="dataForm.port" placeholder="请输入Port"></el-input>
+                        </el-form-item>
+                        <el-form-item label="User">
+                            <el-input v-model="dataForm.user" placeholder="请输入User"></el-input>
+                        </el-form-item>
+                        <el-form-item label="Pass">
+                            <el-input v-model="dataForm.password" placeholder="请输入Pass"></el-input>
+                        </el-form-item>
+                        <el-form-item label="DataBase">
+                            <el-input v-model="dataForm.dataBase" placeholder="请输入DataBase"></el-input>
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button @click="getDbConn" type="primary">连接</el-button>
+                        </el-form-item>
+                    </el-form>
+                </el-card>
+            </el-col>
+        </el-row>
+
+    </div>
+</div>
+<!-- 引入组件库 -->
+<script src="/static/js/vue.js"></script>
+<script src="/static/js/elementui.js"></script>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="/static/js/db.js"></script>
+</body>
+</html>
