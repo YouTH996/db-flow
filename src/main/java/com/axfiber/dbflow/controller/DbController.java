@@ -6,6 +6,7 @@ import com.axfiber.dbflow.utils.R;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Map;
 
 /**
  * @author Zhan Xinjian
@@ -24,8 +25,8 @@ public class DbController {
      */
     @PostMapping("/getDbConn")
     public R getDbConn(@RequestBody DbDto dbDto) {
-        dbService.getDbConn(dbDto);
-        return R.ok();
+        Map map = dbService.getDbConn(dbDto);
+        return R.ok().put("map",map);
     }
 
 }

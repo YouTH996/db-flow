@@ -36,23 +36,19 @@
                         <el-form-item label="Pass">
                             <el-input v-model="dataForm.password" placeholder="请输入Pass"></el-input>
                         </el-form-item>
+                        <el-form-item label="DataBase">
+                            <el-input v-model="dataForm.dataBase" placeholder="请输入DataBase"></el-input>
+                        </el-form-item>
                         <el-form-item>
                             <el-button @click="getDbConn" type="primary">连接</el-button>
                         </el-form-item>
                     </el-form>
                 </el-card>
             </el-col>
-            <el-col :span="4">
+            <el-col :span="8">
                 <el-card>
-                    <span class="title">2.选择数据库</span>
-                    <el-select v-model="value" placeholder="请选择">
-                        <el-option
-                                v-for="item in databases"
-                                :key="item.value"
-                                :label="item.label"
-                                :value="item.value">
-                        </el-option>
-                    </el-select>
+                    <span class="title">2.选择数据表</span>
+                    <el-transfer v-model="table" :data="tables"></el-transfer>
                 </el-card>
             </el-col>
         </el-row>
