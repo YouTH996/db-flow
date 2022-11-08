@@ -7,9 +7,9 @@ const app = new Vue({
                 host:'localhost',
                 port:'3306',
                 user:'root',
-                password:'123456',
-                dataBase:''
-            }
+                password:'123456'
+            },
+            databases:[]
         }
     },
     methods:{
@@ -21,8 +21,7 @@ const app = new Vue({
                     "host":this.dataForm.host,
                     "port":this.dataForm.port,
                     "user":this.dataForm.user,
-                    "password":this.dataForm.password,
-                    "dataBase":this.dataForm.dataBase,
+                    "password":this.dataForm.password
                 }),
                 contentType:"application/json",
                 async: false,

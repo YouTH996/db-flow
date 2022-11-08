@@ -13,7 +13,8 @@ public class DbServiceImpl implements DbService{
     @Override
     public void getDbConn(DbDto dbDto) {
         //封装url参数
-        String url = String.format("url=jdbc:mysql://%s:%s/%s?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false", dbDto.getHost(), dbDto.getPort(),dbDto.getDataBase());
+        String url = String.format("jdbc:mysql://%s:%s?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false", dbDto.getHost(), dbDto.getPort());
         DbUtils.getDbConn(url,dbDto.getUser(),dbDto.getPassword());
+
     }
 }

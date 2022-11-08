@@ -19,9 +19,10 @@
         </div>
     </div>
     <div class="content">
-        <el-row>
-            <el-col :span="12">
+        <el-row :gutter="10">
+            <el-col :span="4">
                 <el-card>
+                    <span class="title">1.数据库连接</span>
                     <el-form :model="dataForm" label-width="80px">
                         <el-form-item label="Host">
                             <el-input v-model="dataForm.host" placeholder="请输入Host"></el-input>
@@ -35,13 +36,23 @@
                         <el-form-item label="Pass">
                             <el-input v-model="dataForm.password" placeholder="请输入Pass"></el-input>
                         </el-form-item>
-                        <el-form-item label="DataBase">
-                            <el-input v-model="dataForm.dataBase" placeholder="请输入DataBase"></el-input>
-                        </el-form-item>
                         <el-form-item>
                             <el-button @click="getDbConn" type="primary">连接</el-button>
                         </el-form-item>
                     </el-form>
+                </el-card>
+            </el-col>
+            <el-col :span="4">
+                <el-card>
+                    <span class="title">2.选择数据库</span>
+                    <el-select v-model="value" placeholder="请选择">
+                        <el-option
+                                v-for="item in databases"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
                 </el-card>
             </el-col>
         </el-row>
