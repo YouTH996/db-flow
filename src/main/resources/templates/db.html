@@ -22,7 +22,7 @@
         <el-row :gutter="10">
             <el-col :span="4">
                 <el-card>
-                    <span class="title">1.数据库连接</span>
+                    <div class="title">1.连数据库接</div>
                     <el-form :model="dataForm" label-width="80px">
                         <el-form-item label="Host">
                             <el-input v-model="dataForm.host" placeholder="请输入Host"></el-input>
@@ -47,12 +47,86 @@
             </el-col>
             <el-col :span="8">
                 <el-card>
-                    <span class="title">2.选择数据表</span>
-                    <el-transfer v-model="table" :data="tables"></el-transfer>
+                    <div class="title">2.修改数据表</div>
+                    <el-select v-model="table" placeholder="请选择表" @change="tableChange" size="mini"
+                               style="margin-bottom: 10px">
+                        <el-option
+                                v-for="item in tables"
+                                :key="item.key"
+                                :label="item.label"
+                                :value="item.key">
+                        </el-option>
+                    </el-select>
+                    <el-table :data="tableSchema" height="334px" border>
+                        <el-table-column label="字段名称" align-header="center" align="center" prop="columnName"
+                                         width="200"></el-table-column>
+                        <el-table-column label="数据类型" align-header="center" align="center"
+                                         prop="columnType"></el-table-column>
+                        <el-table-column label="字段长度" align-header="center" align="center"
+                                         prop="dataSize"></el-table-column>
+                        <el-table-column label="是否为空" align-header="center" align="center"
+                                         prop="nullable"></el-table-column>
+                        <el-table-column label="描述" align-header="center" align="center" prop="remarks"
+                                         show-overflow-tooltip></el-table-column>
+                    </el-table>
+                </el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card>
+                    <div class="title">3.显示数据表</div>
+                    <div style="height: 372px;width: 100%">
+                        <el-transfer v-model="checkTables" :data="tables"></el-transfer>
+                    </div>
+
                 </el-card>
             </el-col>
         </el-row>
+        <el-row>
+            <el-card>
+                <el-tabs v-model="table" @tab-click="handleClick">
+                    <el-tab-pane v-for="(item,index) in checkTables" :label="item" :name="item">
+                        <div>
+                            <el-form size="mini" label-width="80px" :inline="true">
+                                <el-form-item label="关键字">
+                                    <el-input placeholder="请输入关键字"></el-input>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="default" icon="el-icon-search">查询</el-button>
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary">新增</el-button>
+                                    <el-button type="warning">修改</el-button>
+                                    <el-button type="danger">删除</el-button>
+                                    <el-button type="success">导出</el-button>
+                                </el-form-item>
+                            </el-form>
+                            <el-table :data="dataList" v-loading="dataListLoading" height="500px">
+                                <el-table-column type="selection"  align-header="center" align="center"></el-table-column>
+                                <el-table-column v-for="(item,index) in tableSchema" :label="item.remarks" :key="index"
+                                                 :prop="item.columnName" align-header="center" show-overflow-tooltip
+                                                 align="center"></el-table-column>
+                                <el-table-column label="操作"  align-header="center" align="center" fiexed="right">
+                                    <template slot-scope="scope">
+                                        <el-button type="text" @click="handlerUpdate(scope.row)">修改</el-button>
+                                        <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                            <el-pagination
+                                    @size-change="sizeChangeHandle"
+                                    @current-change="currentChangeHandle"
+                                    :current-page="pageIndex"
+                                    :page-sizes="[10, 20, 50, 100]"
+                                    :page-size="pageSize"
+                                    :total="totalPage"
+                                    layout="total, sizes, prev, pager, next, jumper">
+                            </el-pagination>
+                        </div>
+                    </el-tab-pane>
+                </el-tabs>
+            </el-card>
 
+        </el-row>
     </div>
 </div>
 <!-- 引入组件库 -->

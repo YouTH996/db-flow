@@ -10,8 +10,15 @@ const app = new Vue({
                 password: '123456',
                 dataBase: ''
             },
-            table: [],
-            tables: []
+            table: '',
+            tables: [],
+            checkTables: [],
+            tableSchema: [],
+            dataList: [],
+            pageIndex: 1,
+            pageSize: 10,
+            totalPage: 0,
+            dataListLoading: false,
         }
     },
     methods: {
@@ -43,8 +50,101 @@ const app = new Vue({
                     }
                 }
             });
-            console.log(222)
-            console.log(this.tables);
+        },
+        /**
+         * 获取表结构
+         */
+        getTableSchema() {
+            $.ajax({
+                type: 'GET',
+                url: '/db/getTableSchema',
+                data: {
+                    "tableName": app.table
+                },
+                contentType: "application/json",
+                async: true,
+                dataType: 'json',
+                success(data) {
+                    if (data && data.code === 0) {
+                        app.tableSchema = data.list
+                    }
+                }
+            });
+        },
+        /**
+         * 下拉框选中值发生变化
+         */
+        tableChange() {
+            app.getTableSchema()
+        },
+        handleClick(tab, _event) {
+            app.table = app.checkTables[tab.index]
+            //重置页码
+            app.pageIndex=1
+            this.getTableSchema()
+            this.getDataList()
+        },
+        // 获取数据列表
+        getDataList() {
+            app.dataList=[]
+            app.dataListLoading = true
+            $.ajax({
+                type: 'GET',
+                url: '/db/getDataList',
+                data: {
+                    'tableName': app.table,
+                    'page': app.pageIndex,
+                    'limit': app.pageSize
+                },
+                contentType: "application/json",
+                async: true,
+                dataType: 'json',
+                success(data) {
+                    if (data && data.code === 0) {
+                        const total = parseInt(data.map.total['count(1)'][0]);
+                        app.totalPage=total
+                        if (total > 0) {
+                            const map = data.map.data;
+                            const columnNames = app.tableSchema.map(item => {
+                                return item.columnName
+                            })
+                            let length = map[columnNames[0]].length;
+
+                            if (length > 0) {
+                                for (let i = 0; i < length; i++) {
+                                    let obj = Object.create(null);
+                                    for (const key of columnNames) {
+                                        obj[key] = key
+                                    }
+                                    for (let j = 0; j < columnNames.length; j++) {
+                                        obj[columnNames[j]] = map[columnNames[j]][i];
+                                    }
+                                    app.dataList.push(obj)
+                                }
+                            }
+                        }
+                        app.dataListLoading = false
+                    }
+                }
+            });
+
+        },
+        // 每页数
+        sizeChangeHandle(val) {
+            app.pageSize = val
+            app.pageIndex = 1
+            app.getDataList()
+        },
+        // 当前页
+        currentChangeHandle(val) {
+            app.pageIndex = val
+            app.getDataList()
+        },
+        handlerUpdate(row) {
+            console.log(row);
+        },
+        handlerDelete(row) {
+            console.log(row);
         }
     }
 
