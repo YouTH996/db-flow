@@ -69,9 +69,21 @@ public class DbController {
         return R.ok().put("map", map);
     }
 
+    /**
+     * 更新
+     */
     @PostMapping("/update")
     public R update(@RequestBody SaveOrUpdateFormDto dto) {
         dbService.update(dto);
+        return R.ok();
+    }
+
+    /**
+     * 新增
+     */
+    @PostMapping("/save")
+    public R save(@RequestBody SaveOrUpdateFormDto dto) {
+        dbService.save(dto);
         return R.ok();
     }
 

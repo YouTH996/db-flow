@@ -82,4 +82,32 @@ public class DbServiceImpl implements DbService {
         stringBuilder.append(updateSuffixSql);
         DbUtils.executeUpdateSql(stringBuilder.toString());
     }
+
+    @Override
+    public void save(SaveOrUpdateFormDto dto) {
+        //格式化更新语句
+        List<SaveOrUpdateDto> list = JSON.parseArray(dto.getData(), SaveOrUpdateDto.class);
+        String savePrefixSql = String.format("insert into %s ( ", dto.getTableName());
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(savePrefixSql);
+        for (int i = 0; i < list.size(); i++) {
+
+            stringBuilder.append(list.get(i).getKey());
+
+            if (i != list.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        stringBuilder.append(" ) values ( ");
+        for (int i = 0; i < list.size(); i++) {
+            stringBuilder.append("'");
+            stringBuilder.append(list.get(i).getValue());
+            stringBuilder.append("'");
+            if (i != list.size() - 1) {
+                stringBuilder.append(",");
+            }
+        }
+        stringBuilder.append(" )");
+        DbUtils.executeUpdateSql(stringBuilder.toString());
+    }
 }

@@ -157,8 +157,14 @@ const app = new Vue({
         },
         addOrUpdateHandle (row) {
             app.keyIndex=undefined
+            const columnNames = app.tableSchema.map(item => {
+                return item.columnName
+            })
+            const remarkNames = app.tableSchema.map(item => {
+                return item.remarks
+            })
+            app.addOrUpdateForm=[]
             if (row) {
-                this.addOrUpdateVisible = true;
                 //获取主键
                 const keyRow=this.tableSchema.filter(item => {
                     if (item.primaryKey) {
@@ -187,13 +193,7 @@ const app = new Vue({
                             if (data && data.code === 0) {
                                 //对结构进行封装
                                 const map = data.map;
-                                const columnNames = app.tableSchema.map(item => {
-                                    return item.columnName
-                                })
-                                const remarkNames = app.tableSchema.map(item => {
-                                    return item.remarks
-                                })
-                                app.addOrUpdateForm=[]
+
                                 for (let j = 0; j < columnNames.length; j++) {
                                     app.addOrUpdateForm.push({
                                         "key":remarkNames[j],
@@ -203,7 +203,15 @@ const app = new Vue({
                             }
                         }
                 })
+            }else{
+                for (let j = 0; j < columnNames.length; j++) {
+                    app.addOrUpdateForm.push({
+                        "key":remarkNames[j],
+                        "value":"",
+                    })
+                }
             }
+            this.addOrUpdateVisible = true;
         },
         addOrUpdateSubmit(){
             //找到remark对应的字段
@@ -219,7 +227,7 @@ const app = new Vue({
             }
             $.ajax({
                 type: 'POST',
-                url: '/db/update',
+                url: `/db/${app.keyIndex?'update':'save'}`,
                 data: JSON.stringify({
                     'dataBase': app.dataForm.dataBase,
                     'tableName': app.table,
