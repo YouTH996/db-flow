@@ -19,6 +19,13 @@ const app = new Vue({
             pageSize: 10,
             totalPage: 0,
             dataListLoading: false,
+            //菜单上方配置项是否可见
+            configVisible:true,
+            //添加修改dialog
+            addOrUpdateVisible:false,
+            keyIndex:0,
+            primaryKey:undefined,
+            addOrUpdateForm:[]
         }
     },
     methods: {
@@ -47,6 +54,8 @@ const app = new Vue({
                                 }
                             })
                         }
+                    }else{
+                        app.$message.error(data.msg)
                     }
                 }
             });
@@ -59,6 +68,7 @@ const app = new Vue({
                 type: 'GET',
                 url: '/db/getTableSchema',
                 data: {
+                    "dataBase": app.dataForm.dataBase,
                     "tableName": app.table
                 },
                 contentType: "application/json",
@@ -67,6 +77,8 @@ const app = new Vue({
                 success(data) {
                     if (data && data.code === 0) {
                         app.tableSchema = data.list
+                    }else{
+                        app.$message.error(data.msg)
                     }
                 }
             });
@@ -92,6 +104,7 @@ const app = new Vue({
                 type: 'GET',
                 url: '/db/getDataList',
                 data: {
+                    'dataBase': app.dataForm.dataBase,
                     'tableName': app.table,
                     'page': app.pageIndex,
                     'limit': app.pageSize
@@ -124,6 +137,8 @@ const app = new Vue({
                             }
                         }
                         app.dataListLoading = false
+                    }else{
+                        app.$message.error(data.msg)
                     }
                 }
             });
@@ -140,10 +155,93 @@ const app = new Vue({
             app.pageIndex = val
             app.getDataList()
         },
-        handlerUpdate(row) {
-            console.log(row);
+        addOrUpdateHandle (row) {
+            app.keyIndex=undefined
+            if (row) {
+                this.addOrUpdateVisible = true;
+                //获取主键
+                const keyRow=this.tableSchema.filter(item => {
+                    if (item.primaryKey) {
+                        return true
+                    }
+                })
+                if (keyRow.length === 0) {
+                    app.$message.error("该表无主键，请检查!")
+                    return
+                }
+                app.primaryKey=keyRow[0].columnName
+                app.keyIndex=row[app.primaryKey]
+                $.ajax({
+                    type: 'GET',
+                    url: '/db/info',
+                    data: {
+                        'dataBase': app.dataForm.dataBase,
+                        'tableName': app.table,
+                        'primaryKey': app.primaryKey,
+                        'keyVal': app.keyIndex,
+                    },
+                    contentType: "application/json",
+                    async: true,
+                    dataType: 'json',
+                        success(data) {
+                            if (data && data.code === 0) {
+                                //对结构进行封装
+                                const map = data.map;
+                                const columnNames = app.tableSchema.map(item => {
+                                    return item.columnName
+                                })
+                                const remarkNames = app.tableSchema.map(item => {
+                                    return item.remarks
+                                })
+                                app.addOrUpdateForm=[]
+                                for (let j = 0; j < columnNames.length; j++) {
+                                    app.addOrUpdateForm.push({
+                                        "key":remarkNames[j],
+                                        "value":map[columnNames[j]][0],
+                                    })
+                                }
+                            }
+                        }
+                })
+            }
         },
-        handlerDelete(row) {
+        addOrUpdateSubmit(){
+            //找到remark对应的字段
+            const columnNames = app.tableSchema.map(item => {
+                return item.columnName
+            })
+            const submitForm=[]
+            for (let j = 0; j < app.addOrUpdateForm.length; j++) {
+                submitForm.push({
+                    "key":columnNames[j],
+                    "value":app.addOrUpdateForm[j].value,
+                })
+            }
+            $.ajax({
+                type: 'POST',
+                url: '/db/update',
+                data: JSON.stringify({
+                    'dataBase': app.dataForm.dataBase,
+                    'tableName': app.table,
+                    'primaryKey': app.primaryKey,
+                    'keyVal': app.keyIndex,
+                    "data": JSON.stringify(submitForm),
+                }),
+                contentType: "application/json",
+                async: true,
+                dataType: 'json',
+                success(data) {
+                    if (data && data.code === 0) {
+                        app.$message.success("操作成功")
+                        app.addOrUpdateVisible=false
+                        app.getDataList()
+                    }else{
+                        app.$message.error(data.msg)
+                    }
+                }
+            });
+        },
+        deleteHandle(row){
             console.log(row);
         }
     }

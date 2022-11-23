@@ -30,4 +30,8 @@ public class TableSchemaDto {
      * 备注
      */
     private String remarks;
+    /**
+     * 是否为主键
+     */
+    private Boolean primaryKey;
 }

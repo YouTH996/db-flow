@@ -19,7 +19,7 @@
         </div>
     </div>
     <div class="content">
-        <el-row :gutter="10">
+        <el-row :gutter="10" v-if="configVisible">
             <el-col :span="4">
                 <el-card>
                     <div class="title">1.连数据库接</div>
@@ -34,7 +34,7 @@
                             <el-input v-model="dataForm.user" placeholder="请输入User"></el-input>
                         </el-form-item>
                         <el-form-item label="Pass">
-                            <el-input v-model="dataForm.password" placeholder="请输入Pass"></el-input>
+                            <el-input v-model="dataForm.password" type="password" placeholder="请输入Pass"></el-input>
                         </el-form-item>
                         <el-form-item label="DataBase">
                             <el-input v-model="dataForm.dataBase" placeholder="请输入DataBase"></el-input>
@@ -47,7 +47,16 @@
             </el-col>
             <el-col :span="8">
                 <el-card>
-                    <div class="title">2.修改数据表</div>
+                    <div class="title">2.显示数据表</div>
+                    <div style="height: 372px;width: 100%">
+                        <el-transfer v-model="checkTables" :data="tables"></el-transfer>
+                    </div>
+
+                </el-card>
+            </el-col>
+            <el-col :span="12">
+                <el-card>
+                    <div class="title">3.修改数据表</div>
                     <el-select v-model="table" placeholder="请选择表" @change="tableChange" size="mini"
                                style="margin-bottom: 10px">
                         <el-option
@@ -68,21 +77,21 @@
                                          prop="nullable"></el-table-column>
                         <el-table-column label="描述" align-header="center" align="center" prop="remarks"
                                          show-overflow-tooltip></el-table-column>
+                        <el-table-column label="" align-header="center" align="center" prop="primaryKey">
+                            <template slot-scope="scope">
+                                <el-tag v-if="scope.row.primaryKey">主键</el-tag>
+                            </template>
+                        </el-table-column>
                     </el-table>
-                </el-card>
-            </el-col>
-            <el-col :span="12">
-                <el-card>
-                    <div class="title">3.显示数据表</div>
-                    <div style="height: 372px;width: 100%">
-                        <el-transfer v-model="checkTables" :data="tables"></el-transfer>
-                    </div>
-
                 </el-card>
             </el-col>
         </el-row>
         <el-row>
             <el-card>
+                <div style="text-align: center">
+                    <i :class="`${configVisible?'el-icon-arrow-up':'el-icon-arrow-down'}`"
+                       @click="configVisible=!configVisible" style="cursor: pointer"></i>
+                </div>
                 <el-tabs v-model="table" @tab-click="handleClick">
                     <el-tab-pane v-for="(item,index) in checkTables" :label="item" :name="item">
                         <div>
@@ -100,15 +109,16 @@
                                     <el-button type="success">导出</el-button>
                                 </el-form-item>
                             </el-form>
-                            <el-table :data="dataList" v-loading="dataListLoading" height="500px">
-                                <el-table-column type="selection"  align-header="center" align="center"></el-table-column>
+                            <el-table :data="dataList" v-loading="dataListLoading">
+                                <el-table-column type="selection" align-header="center"
+                                                 align="center"></el-table-column>
                                 <el-table-column v-for="(item,index) in tableSchema" :label="item.remarks" :key="index"
                                                  :prop="item.columnName" align-header="center" show-overflow-tooltip
                                                  align="center"></el-table-column>
-                                <el-table-column label="操作"  align-header="center" align="center" fiexed="right">
+                                <el-table-column label="操作" align-header="center" align="center" fiexed="right">
                                     <template slot-scope="scope">
-                                        <el-button type="text" @click="handlerUpdate(scope.row)">修改</el-button>
-                                        <el-button type="text" @click="handlerDelete(scope.row)">删除</el-button>
+                                        <el-button type="text" @click="addOrUpdateHandle(scope.row)">修改</el-button>
+                                        <el-button type="text" @click="deleteHandle(scope.row)">删除</el-button>
                                     </template>
                                 </el-table-column>
                             </el-table>
@@ -127,12 +137,29 @@
             </el-card>
 
         </el-row>
+        <!--更新或修改dialog-->
+        <div>
+            <el-dialog
+                    :title="!keyIndex ? '新增' : '修改'"
+                    :close-on-click-modal="false"
+                    :visible.sync="addOrUpdateVisible">
+                <span slot="footer" class="dialog-footer">
+                    <el-form label-width="120px">
+                        <el-form-item v-for="(item,index) in addOrUpdateForm" :label="item.key" :key="index">
+                            <el-input v-model="item.value"></el-input>
+                        </el-form-item>
+                    </el-form>
+      <el-button @click="addOrUpdateVisible = false">取消</el-button>
+      <el-button type="primary" @click="addOrUpdateSubmit()">确定</el-button>
+    </span>
+            </el-dialog>
+        </div>
     </div>
 </div>
 <!-- 引入组件库 -->
 <script src="/static/js/vue.js"></script>
 <script src="/static/js/elementui.js"></script>
-<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<script src="/static/js/jquery.js"></script>
 <script src="/static/js/db.js"></script>
 </body>
 </html>

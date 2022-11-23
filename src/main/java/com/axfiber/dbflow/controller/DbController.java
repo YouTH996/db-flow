@@ -1,6 +1,7 @@
 package com.axfiber.dbflow.controller;
 
 import com.axfiber.dbflow.dto.DbDto;
+import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
 import com.axfiber.dbflow.dto.TableSchemaDto;
 import com.axfiber.dbflow.service.DbService;
 import com.axfiber.dbflow.utils.R;
@@ -41,8 +42,8 @@ public class DbController {
      * @return 表结构
      */
     @GetMapping("/getTableSchema")
-    public R getTableSchema(@RequestParam("tableName") String tableName) {
-        List<TableSchemaDto> list = dbService.getTableSchema(tableName);
+    public R getTableSchema(@RequestParam("dataBase") String dataBase, @RequestParam("tableName") String tableName) {
+        List<TableSchemaDto> list = dbService.getTableSchema(dataBase, tableName);
         return R.ok().put("list", list);
     }
 
@@ -56,6 +57,22 @@ public class DbController {
     public R getDataList(@RequestParam Map<String, Object> params) {
         Map map = dbService.queryPage(params);
         return R.ok().put("map", map);
+    }
+
+    /**
+     * 根据主键查询
+     */
+    @GetMapping("/info")
+    public R info(@RequestParam("dataBase") String dataBase, @RequestParam("tableName") String tableName,
+                  @RequestParam("primaryKey") String primaryKey, @RequestParam("keyVal") String keyVal) {
+        Map map = dbService.info(dataBase, tableName, primaryKey, keyVal);
+        return R.ok().put("map", map);
+    }
+
+    @PostMapping("/update")
+    public R update(@RequestBody SaveOrUpdateFormDto dto) {
+        dbService.update(dto);
+        return R.ok();
     }
 
 }
