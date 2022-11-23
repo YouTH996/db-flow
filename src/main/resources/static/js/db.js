@@ -10,6 +10,7 @@ const app = new Vue({
                 password: '123456',
                 dataBase: ''
             },
+            emptyVisible:true,
             table: '',
             tables: [],
             checkTables: [],
@@ -91,6 +92,7 @@ const app = new Vue({
             app.getTableSchema()
         },
         handleClick(tab, _event) {
+            app.emptyVisible=false
             app.table = app.checkTables[tab.index]
             //重置页码
             app.pageIndex = 1

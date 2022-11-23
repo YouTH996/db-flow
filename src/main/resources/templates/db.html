@@ -2,11 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>db-flow</title>
     <!-- 引入样式 -->
     <link rel="stylesheet" href="/static/css/elementui.css">
     <link rel="stylesheet" href="/static/css/index.css">
-
 </head>
 <body>
 <div id="app">
@@ -77,7 +76,7 @@
                                          prop="nullable"></el-table-column>
                         <el-table-column label="描述" align-header="center" align="center" prop="remarks"
                                          show-overflow-tooltip></el-table-column>
-                        <el-table-column label="" align-header="center" align="center" prop="primaryKey">
+                        <el-table-column label="" align-header="center" align="center" label="索引">
                             <template slot-scope="scope">
                                 <el-tag v-if="scope.row.primaryKey">主键</el-tag>
                             </template>
@@ -93,6 +92,7 @@
                        @click="configVisible=!configVisible" style="cursor: pointer"></i>
                 </div>
                 <el-tabs v-model="table" @tab-click="handleClick">
+                    <el-empty description="暂无数据" v-if="emptyVisible"></el-empty>
                     <el-tab-pane v-for="(item,index) in checkTables" :label="item" :name="item">
                         <div>
                             <el-form size="mini" label-width="80px" :inline="true">
@@ -109,7 +109,8 @@
                                     <el-button type="success">导出</el-button>
                                 </el-form-item>
                             </el-form>
-                            <el-table :data="dataList" v-loading="dataListLoading" @selection-change="selectionChangeHandle">
+                            <el-table :data="dataList" v-loading="dataListLoading"
+                                      @selection-change="selectionChangeHandle">
                                 <el-table-column type="selection" align-header="center"
                                                  align="center"></el-table-column>
                                 <el-table-column v-for="(item,index) in tableSchema" :label="item.remarks" :key="index"
