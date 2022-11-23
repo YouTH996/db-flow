@@ -1,6 +1,7 @@
 package com.axfiber.dbflow.service;
 
 import com.axfiber.dbflow.dto.DbDto;
+import com.axfiber.dbflow.dto.DeleteFormDto;
 import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
 import com.axfiber.dbflow.dto.TableSchemaDto;
 
@@ -61,4 +62,10 @@ public interface DbService {
      * @param dto 新增表单对象
      */
     void save(SaveOrUpdateFormDto dto);
+
+    /**
+     * 删除
+     * @param dto 删除表单对象
+     */
+    void delete(DeleteFormDto dto);
 }

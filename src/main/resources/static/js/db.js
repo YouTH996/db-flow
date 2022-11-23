@@ -19,13 +19,14 @@ const app = new Vue({
             pageSize: 10,
             totalPage: 0,
             dataListLoading: false,
+            dataListSelections: [],
             //菜单上方配置项是否可见
-            configVisible:true,
+            configVisible: true,
             //添加修改dialog
-            addOrUpdateVisible:false,
-            keyIndex:0,
-            primaryKey:undefined,
-            addOrUpdateForm:[]
+            addOrUpdateVisible: false,
+            keyIndex: 0,
+            primaryKey: undefined,
+            addOrUpdateForm: []
         }
     },
     methods: {
@@ -54,7 +55,7 @@ const app = new Vue({
                                 }
                             })
                         }
-                    }else{
+                    } else {
                         app.$message.error(data.msg)
                     }
                 }
@@ -77,7 +78,7 @@ const app = new Vue({
                 success(data) {
                     if (data && data.code === 0) {
                         app.tableSchema = data.list
-                    }else{
+                    } else {
                         app.$message.error(data.msg)
                     }
                 }
@@ -92,13 +93,13 @@ const app = new Vue({
         handleClick(tab, _event) {
             app.table = app.checkTables[tab.index]
             //重置页码
-            app.pageIndex=1
+            app.pageIndex = 1
             this.getTableSchema()
             this.getDataList()
         },
         // 获取数据列表
         getDataList() {
-            app.dataList=[]
+            app.dataList = []
             app.dataListLoading = true
             $.ajax({
                 type: 'GET',
@@ -115,7 +116,7 @@ const app = new Vue({
                 success(data) {
                     if (data && data.code === 0) {
                         const total = parseInt(data.map.total['count(1)'][0]);
-                        app.totalPage=total
+                        app.totalPage = total
                         if (total > 0) {
                             const map = data.map.data;
                             const columnNames = app.tableSchema.map(item => {
@@ -137,7 +138,7 @@ const app = new Vue({
                             }
                         }
                         app.dataListLoading = false
-                    }else{
+                    } else {
                         app.$message.error(data.msg)
                     }
                 }
@@ -155,18 +156,18 @@ const app = new Vue({
             app.pageIndex = val
             app.getDataList()
         },
-        addOrUpdateHandle (row) {
-            app.keyIndex=undefined
+        addOrUpdateHandle(row) {
+            app.keyIndex = undefined
             const columnNames = app.tableSchema.map(item => {
                 return item.columnName
             })
             const remarkNames = app.tableSchema.map(item => {
                 return item.remarks
             })
-            app.addOrUpdateForm=[]
+            app.addOrUpdateForm = []
             if (row) {
                 //获取主键
-                const keyRow=this.tableSchema.filter(item => {
+                const keyRow = this.tableSchema.filter(item => {
                     if (item.primaryKey) {
                         return true
                     }
@@ -175,8 +176,8 @@ const app = new Vue({
                     app.$message.error("该表无主键，请检查!")
                     return
                 }
-                app.primaryKey=keyRow[0].columnName
-                app.keyIndex=row[app.primaryKey]
+                app.primaryKey = keyRow[0].columnName
+                app.keyIndex = row[app.primaryKey]
                 $.ajax({
                     type: 'GET',
                     url: '/db/info',
@@ -189,45 +190,45 @@ const app = new Vue({
                     contentType: "application/json",
                     async: true,
                     dataType: 'json',
-                        success(data) {
-                            if (data && data.code === 0) {
-                                //对结构进行封装
-                                const map = data.map;
+                    success(data) {
+                        if (data && data.code === 0) {
+                            //对结构进行封装
+                            const map = data.map;
 
-                                for (let j = 0; j < columnNames.length; j++) {
-                                    app.addOrUpdateForm.push({
-                                        "key":remarkNames[j],
-                                        "value":map[columnNames[j]][0],
-                                    })
-                                }
+                            for (let j = 0; j < columnNames.length; j++) {
+                                app.addOrUpdateForm.push({
+                                    "key": remarkNames[j],
+                                    "value": map[columnNames[j]][0],
+                                })
                             }
                         }
+                    }
                 })
-            }else{
+            } else {
                 for (let j = 0; j < columnNames.length; j++) {
                     app.addOrUpdateForm.push({
-                        "key":remarkNames[j],
-                        "value":"",
+                        "key": remarkNames[j],
+                        "value": "",
                     })
                 }
             }
             this.addOrUpdateVisible = true;
         },
-        addOrUpdateSubmit(){
+        addOrUpdateSubmit() {
             //找到remark对应的字段
             const columnNames = app.tableSchema.map(item => {
                 return item.columnName
             })
-            const submitForm=[]
+            const submitForm = []
             for (let j = 0; j < app.addOrUpdateForm.length; j++) {
                 submitForm.push({
-                    "key":columnNames[j],
-                    "value":app.addOrUpdateForm[j].value,
+                    "key": columnNames[j],
+                    "value": app.addOrUpdateForm[j].value,
                 })
             }
             $.ajax({
                 type: 'POST',
-                url: `/db/${app.keyIndex?'update':'save'}`,
+                url: `/db/${app.keyIndex ? 'update' : 'save'}`,
                 data: JSON.stringify({
                     'dataBase': app.dataForm.dataBase,
                     'tableName': app.table,
@@ -241,16 +242,64 @@ const app = new Vue({
                 success(data) {
                     if (data && data.code === 0) {
                         app.$message.success("操作成功")
-                        app.addOrUpdateVisible=false
+                        app.addOrUpdateVisible = false
                         app.getDataList()
-                    }else{
+                    } else {
                         app.$message.error(data.msg)
                     }
                 }
             });
         },
-        deleteHandle(row){
-            console.log(row);
+        // 多选
+        selectionChangeHandle(val) {
+            this.dataListSelections = val
+        },
+        deleteHandle(row) {
+            //获取主键
+            const keyRow = this.tableSchema.filter(item => {
+                if (item.primaryKey) {
+                    return true
+                }
+            })
+            if (keyRow.length === 0) {
+                app.$message.error("该表无主键，请检查!")
+                return
+            }
+            app.primaryKey = keyRow[0].columnName
+            if (row) {
+                app.keyIndex = row[app.primaryKey]
+            }
+            const primaryKeys = row ? [app.keyIndex] : this.dataListSelections.map(item => {
+                return item[app.primaryKey]
+            })
+            app.$confirm(`确定对[${app.primaryKey}=${primaryKeys.join(',')}]进行[${primaryKeys.length===1 ? '删除' : '批量删除'}]操作?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                $.ajax({
+                    type: 'POST',
+                    url: `/db/delete`,
+                    data: JSON.stringify({
+                        'dataBase': app.dataForm.dataBase,
+                        'tableName': app.table,
+                        'primaryKey': app.primaryKey,
+                        'keyList': JSON.stringify(primaryKeys)
+                    }),
+                    contentType: "application/json",
+                    async: true,
+                    dataType: 'json',
+                    success(data) {
+                        if (data && data.code === 0) {
+                            app.$message.success("操作成功")
+                            app.addOrUpdateVisible = false
+                            app.getDataList()
+                        } else {
+                            app.$message.error(data.msg)
+                        }
+                    }
+                });
+            }).catch(() => {})
         }
     }
 

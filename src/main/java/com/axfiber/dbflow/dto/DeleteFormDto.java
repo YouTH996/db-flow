@@ -3,13 +3,13 @@ package com.axfiber.dbflow.dto;
 import lombok.Data;
 
 /**
- * 数据更新/新增表单
+ * 数据删除表单
  *
  * @author Zhan Xinjian
  * @date 2022/11/23
  */
 @Data
-public class SaveOrUpdateFormDto {
+public class DeleteFormDto {
     /**
      * 数据库
      */
@@ -23,11 +23,7 @@ public class SaveOrUpdateFormDto {
      */
     private String primaryKey;
     /**
-     * 主键值
+     * 主键值集合
      */
-    private String keyVal;
-    /**
-     * 更新或需要修改的数据
-     */
-    private String data;
+    private String keyList;
 }

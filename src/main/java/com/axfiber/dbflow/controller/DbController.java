@@ -1,6 +1,7 @@
 package com.axfiber.dbflow.controller;
 
 import com.axfiber.dbflow.dto.DbDto;
+import com.axfiber.dbflow.dto.DeleteFormDto;
 import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
 import com.axfiber.dbflow.dto.TableSchemaDto;
 import com.axfiber.dbflow.service.DbService;
@@ -84,6 +85,15 @@ public class DbController {
     @PostMapping("/save")
     public R save(@RequestBody SaveOrUpdateFormDto dto) {
         dbService.save(dto);
+        return R.ok();
+    }
+
+    /**
+     * 删除
+     */
+    @PostMapping("/delete")
+    public R delete(@RequestBody DeleteFormDto dto) {
+        dbService.delete(dto);
         return R.ok();
     }
 

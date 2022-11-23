@@ -1,10 +1,7 @@
 package com.axfiber.dbflow.service;
 
 import com.alibaba.fastjson.JSON;
-import com.axfiber.dbflow.dto.DbDto;
-import com.axfiber.dbflow.dto.SaveOrUpdateDto;
-import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
-import com.axfiber.dbflow.dto.TableSchemaDto;
+import com.axfiber.dbflow.dto.*;
 import com.axfiber.dbflow.utils.DbUtils;
 import org.springframework.stereotype.Service;
 
@@ -109,5 +106,15 @@ public class DbServiceImpl implements DbService {
         }
         stringBuilder.append(" )");
         DbUtils.executeUpdateSql(stringBuilder.toString());
+    }
+
+    @Override
+    public void delete(DeleteFormDto dto) {
+        List<String> keyList = JSON.parseArray(dto.getKeyList(), String.class);
+        //格式化删除SQL语句
+        for (String key : keyList) {
+            String sql = String.format("delete from %s where %s = %s ", dto.getTableName(),dto.getPrimaryKey(),key);
+            DbUtils.executeUpdateSql(sql);
+        }
     }
 }
