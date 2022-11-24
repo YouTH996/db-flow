@@ -5,9 +5,8 @@ import com.axfiber.dbflow.dto.*;
 import com.axfiber.dbflow.utils.DbUtils;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * @author Zhan Xinjian
@@ -26,8 +25,18 @@ public class DbServiceImpl implements DbService {
     }
 
     @Override
-    public List<TableSchemaDto> getTableSchema(String dataBase, String tableName) {
-        return DbUtils.queryTableSchema(dataBase, tableName);
+    public Map getTableSchema(String dataBase, String tableName) {
+        String querySchemaSql = String.format("show full columns from %s", tableName);
+        String[] names = null;
+        try {
+
+            Class<TableColumnDto> tableColumnDto = (Class<com.axfiber.dbflow.dto.TableColumnDto>) Class.forName("com.axfiber.dbflow.dto.TableColumnDto");
+            names = Arrays.stream(tableColumnDto.getDeclaredFields()).map(Field::getName).toArray(String[]::new);
+
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return DbUtils.executeQuerySql(querySchemaSql, names);
     }
 
     @Override
@@ -37,7 +46,7 @@ public class DbServiceImpl implements DbService {
         String dataBase = (String) params.get("dataBase");
         int page = Integer.parseInt((String) params.get("page"));
         int limit = Integer.parseInt((String) params.get("limit"));
-        String[] names = this.getTableSchema(dataBase, tableName).stream().map(TableSchemaDto::getColumnName).toArray(String[]::new);
+        String[] names = (String[]) ((List) this.getTableSchema(dataBase, tableName).get("Field")).stream().toArray(String[]::new);
         //封装分页SQL语句
         String queryDataSql = String.format("select * from %s limit %d , %d", tableName, (page - 1) * limit, limit);
         //还要获取总页数
@@ -52,7 +61,7 @@ public class DbServiceImpl implements DbService {
     @Override
     public Map info(String dataBase, String tableName, String primaryKey, String keyVal) {
         String queryInfoSql = String.format("select * from %s where %s = %s", tableName, primaryKey, keyVal);
-        String[] names = this.getTableSchema(dataBase, tableName).stream().map(TableSchemaDto::getColumnName).toArray(String[]::new);
+        String[] names = (String[]) ((List) this.getTableSchema(dataBase, tableName).get("Field")).stream().toArray(String[]::new);
         return DbUtils.executeQuerySql(queryInfoSql, names);
     }
 
@@ -113,7 +122,7 @@ public class DbServiceImpl implements DbService {
         List<String> keyList = JSON.parseArray(dto.getKeyList(), String.class);
         //格式化删除SQL语句
         for (String key : keyList) {
-            String sql = String.format("delete from %s where %s = %s ", dto.getTableName(),dto.getPrimaryKey(),key);
+            String sql = String.format("delete from %s where %s = %s ", dto.getTableName(), dto.getPrimaryKey(), key);
             DbUtils.executeUpdateSql(sql);
         }
     }

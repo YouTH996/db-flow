@@ -3,13 +3,11 @@ package com.axfiber.dbflow.controller;
 import com.axfiber.dbflow.dto.DbDto;
 import com.axfiber.dbflow.dto.DeleteFormDto;
 import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
-import com.axfiber.dbflow.dto.TableSchemaDto;
 import com.axfiber.dbflow.service.DbService;
 import com.axfiber.dbflow.utils.R;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -44,8 +42,8 @@ public class DbController {
      */
     @GetMapping("/getTableSchema")
     public R getTableSchema(@RequestParam("dataBase") String dataBase, @RequestParam("tableName") String tableName) {
-        List<TableSchemaDto> list = dbService.getTableSchema(dataBase, tableName);
-        return R.ok().put("list", list);
+        Map map = dbService.getTableSchema(dataBase, tableName);
+        return R.ok().put("map", map);
     }
 
     /**

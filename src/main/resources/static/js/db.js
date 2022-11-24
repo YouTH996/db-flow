@@ -25,9 +25,12 @@ const app = new Vue({
             configVisible: true,
             //添加修改dialog
             addOrUpdateVisible: false,
+            schemaAddOrUpdateVisible:false,
             keyIndex: 0,
             primaryKey: undefined,
-            addOrUpdateForm: []
+            addOrUpdateForm: [],
+            schemaFlag:false,
+            schemaForm:{}
         }
     },
     methods: {
@@ -78,7 +81,18 @@ const app = new Vue({
                 dataType: 'json',
                 success(data) {
                     if (data && data.code === 0) {
-                        app.tableSchema = data.list
+                        const map = data.map;
+                        const childList=[]
+                        for (const child in map) {
+                            childList.push(child)
+                        }
+                        for (let i = 0; i < map['Field'].length; i++) {
+                            let obj = Object.create(null);
+                            for (let j = 0; j < childList.length; j++) {
+                                obj[childList[j]] = map[childList[j]][i];
+                            }
+                            app.tableSchema.push(obj)
+                        }
                     } else {
                         app.$message.error(data.msg)
                     }
@@ -122,10 +136,9 @@ const app = new Vue({
                         if (total > 0) {
                             const map = data.map.data;
                             const columnNames = app.tableSchema.map(item => {
-                                return item.columnName
+                                return item.Field
                             })
                             let length = map[columnNames[0]].length;
-
                             if (length > 0) {
                                 for (let i = 0; i < length; i++) {
                                     let obj = Object.create(null);
@@ -135,6 +148,7 @@ const app = new Vue({
                                     for (let j = 0; j < columnNames.length; j++) {
                                         obj[columnNames[j]] = map[columnNames[j]][i];
                                     }
+                                    console.log(obj);
                                     app.dataList.push(obj)
                                 }
                             }
@@ -161,16 +175,16 @@ const app = new Vue({
         addOrUpdateHandle(row) {
             app.keyIndex = undefined
             const columnNames = app.tableSchema.map(item => {
-                return item.columnName
+                return item.Field
             })
             const remarkNames = app.tableSchema.map(item => {
-                return item.remarks
+                return item.Comment
             })
             app.addOrUpdateForm = []
             if (row) {
                 //获取主键
                 const keyRow = this.tableSchema.filter(item => {
-                    if (item.primaryKey) {
+                    if (item.Key==='PRI') {
                         return true
                     }
                 })
@@ -178,7 +192,7 @@ const app = new Vue({
                     app.$message.error("该表无主键，请检查!")
                     return
                 }
-                app.primaryKey = keyRow[0].columnName
+                app.primaryKey = keyRow[0].Field
                 app.keyIndex = row[app.primaryKey]
                 $.ajax({
                     type: 'GET',
@@ -216,10 +230,18 @@ const app = new Vue({
             }
             this.addOrUpdateVisible = true;
         },
+        schemaAddOrUpdateHandle(row){
+            console.log(row);
+            if(row){
+                app.schemaFlag=true
+                app.schemaForm=row
+            }
+            app.schemaAddOrUpdateVisible=true
+        },
         addOrUpdateSubmit() {
             //找到remark对应的字段
             const columnNames = app.tableSchema.map(item => {
-                return item.columnName
+                return item.Field
             })
             const submitForm = []
             for (let j = 0; j < app.addOrUpdateForm.length; j++) {
@@ -252,6 +274,9 @@ const app = new Vue({
                 }
             });
         },
+        schemaAddOrUpdateSubmit(){
+
+        },
         // 多选
         selectionChangeHandle(val) {
             this.dataListSelections = val
@@ -259,7 +284,7 @@ const app = new Vue({
         deleteHandle(row) {
             //获取主键
             const keyRow = this.tableSchema.filter(item => {
-                if (item.primaryKey) {
+                if (item.Key==='PRI') {
                     return true
                 }
             })
@@ -267,7 +292,7 @@ const app = new Vue({
                 app.$message.error("该表无主键，请检查!")
                 return
             }
-            app.primaryKey = keyRow[0].columnName
+            app.primaryKey = keyRow[0].Field
             if (row) {
                 app.keyIndex = row[app.primaryKey]
             }
@@ -302,6 +327,9 @@ const app = new Vue({
                     }
                 });
             }).catch(() => {})
+        },
+        schemaDeleteHandle(row){
+
         }
     }
 

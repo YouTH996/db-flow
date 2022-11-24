@@ -21,7 +21,7 @@
         <el-row :gutter="10" v-if="configVisible">
             <el-col :span="4">
                 <el-card>
-                    <div class="title">1.连数据库接</div>
+                    <div class="title">1.连接数据库</div>
                     <el-form :model="dataForm" label-width="80px">
                         <el-form-item label="Host">
                             <el-input v-model="dataForm.host" placeholder="请输入Host"></el-input>
@@ -65,20 +65,33 @@
                                 :value="item.key">
                         </el-option>
                     </el-select>
+                    <el-button type="primary" size="mini">新增</el-button>
+                    <el-button type="danger" size="mini">删除</el-button>
+                    <el-button type="success" size="mini">导出</el-button>
                     <el-table :data="tableSchema" height="334px" border>
-                        <el-table-column label="字段名称" align-header="center" align="center" prop="columnName"
+                        <el-table-column type="selection" align-header="center"
+                                         align="center"></el-table-column>
+                        <el-table-column label="字段名称" align-header="center" align="center" prop="Field"
                                          width="200"></el-table-column>
                         <el-table-column label="数据类型" align-header="center" align="center"
-                                         prop="columnType"></el-table-column>
-                        <el-table-column label="字段长度" align-header="center" align="center"
-                                         prop="dataSize"></el-table-column>
+                                         prop="Type"></el-table-column>
+                        <el-table-column label="默认值" align-header="center" align="center"
+                                         prop="Default"></el-table-column>
+                        <el-table-column label="其他" align-header="center" align="center"
+                                         prop="Extra"></el-table-column>
                         <el-table-column label="是否为空" align-header="center" align="center"
-                                         prop="nullable"></el-table-column>
-                        <el-table-column label="描述" align-header="center" align="center" prop="remarks"
+                                         prop="Null"></el-table-column>
+                        <el-table-column label="描述" align-header="center" align="center" prop="Comment"
                                          show-overflow-tooltip></el-table-column>
-                        <el-table-column label="" align-header="center" align="center" label="索引">
+                        <el-table-column label="索引" align-header="center" align="center">
                             <template slot-scope="scope">
-                                <el-tag v-if="scope.row.primaryKey">主键</el-tag>
+                                <el-tag v-if="scope.row.Key">{{scope.row.Key}}</el-tag>
+                            </template>
+                        </el-table-column>
+                        <el-table-column label="操作" align-header="center" align="center" fiexed="right">
+                            <template slot-scope="scope">
+                                <el-button type="text" @click="schemaAddOrUpdateHandle(scope.row)">修改</el-button>
+                                <el-button type="text" @click="schemaDeleteHandle(scope.row)">删除</el-button>
                             </template>
                         </el-table-column>
                     </el-table>
@@ -113,8 +126,8 @@
                                       @selection-change="selectionChangeHandle">
                                 <el-table-column type="selection" align-header="center"
                                                  align="center"></el-table-column>
-                                <el-table-column v-for="(item,index) in tableSchema" :label="item.remarks" :key="index"
-                                                 :prop="item.columnName" align-header="center" show-overflow-tooltip
+                                <el-table-column v-for="(item,index) in tableSchema" :label="item.Comment" :key="index"
+                                                 :prop="item.Field" align-header="center" show-overflow-tooltip
                                                  align="center"></el-table-column>
                                 <el-table-column label="操作" align-header="center" align="center" fiexed="right">
                                     <template slot-scope="scope">
@@ -140,16 +153,45 @@
         </el-row>
         <!--更新或修改dialog-->
         <div>
+            <el-dialog :title="schemaFlag?'新增':'修改'" :close-on-click-modal="false" :visible.sync="schemaAddOrUpdateVisible">
+                <el-form :model="schemaForm" label-width="120px">
+                    <el-form-item label="字段名称">
+                        <el-input v-model="schemaForm.columnName"></el-input>
+                    </el-form-item>
+                    <el-form-item label="数据类型">
+                        <el-input v-model="schemaForm.columnType"></el-input>
+                    </el-form-item>
+                    <el-form-item label="字段长度">
+                        <el-input v-model="schemaForm.dataSize"></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否为空">
+                        <el-input v-model="schemaForm.nullable"></el-input>
+                    </el-form-item>
+                    <el-form-item label="描述">
+                        <el-input v-model="schemaForm.remarks"></el-input>
+                    </el-form-item>
+                    <el-form-item label="索引">
+                        <el-input v-model="schemaForm.primaryKey"></el-input>
+                    </el-form-item>
+                    <el-form-item label="默认值">
+                        <el-input v-model="schemaForm.defaultValue"></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+      <el-button @click="schemaAddOrUpdateVisible = false">取消</el-button>
+      <el-button type="primary" @click="schemaAddOrUpdateSubmit()">确定</el-button>
+    </span>
+            </el-dialog>
             <el-dialog
                     :title="!keyIndex ? '新增' : '修改'"
                     :close-on-click-modal="false"
                     :visible.sync="addOrUpdateVisible">
+                <el-form label-width="120px">
+                    <el-form-item v-for="(item,index) in addOrUpdateForm" :label="item.key" :key="index">
+                        <el-input v-model="item.value"></el-input>
+                    </el-form-item>
+                </el-form>
                 <span slot="footer" class="dialog-footer">
-                    <el-form label-width="120px">
-                        <el-form-item v-for="(item,index) in addOrUpdateForm" :label="item.key" :key="index">
-                            <el-input v-model="item.value"></el-input>
-                        </el-form-item>
-                    </el-form>
       <el-button @click="addOrUpdateVisible = false">取消</el-button>
       <el-button type="primary" @click="addOrUpdateSubmit()">确定</el-button>
     </span>

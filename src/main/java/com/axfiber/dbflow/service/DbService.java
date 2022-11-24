@@ -3,9 +3,7 @@ package com.axfiber.dbflow.service;
 import com.axfiber.dbflow.dto.DbDto;
 import com.axfiber.dbflow.dto.DeleteFormDto;
 import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
-import com.axfiber.dbflow.dto.TableSchemaDto;
 
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,7 +26,7 @@ public interface DbService {
      * @param tableName 表名称
      * @return 表结构
      */
-    List<TableSchemaDto> getTableSchema(String dataBase, String tableName);
+    Map getTableSchema(String dataBase, String tableName);
 
     /**
      * 获取表数据
