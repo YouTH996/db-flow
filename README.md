@@ -4,7 +4,7 @@
 - 采用SpringBoot、jdbc开发，无其他第三方依赖，门槛极低
 - 项目前端采用Vue.js语法编写，但并未实现前后端分离，从而无需再次进行前后端的整合和部署，只用一个jar包，便可以做到网页版Navicat的功能
 - 支持MySQL数据库（未适配其他数据库）
-- 项目演示地址：[www.axfiber.com](http://www.axfiber.com)
+- 项目演示地址：[http://81.68.186.244:9000/db.html](http://81.68.186.244:9000/db.html)
 
 #### 项目结构
 
