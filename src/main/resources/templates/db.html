@@ -65,7 +65,7 @@
                                 :value="item.key">
                         </el-option>
                     </el-select>
-                    <el-button type="primary" size="mini">新增</el-button>
+                    <el-button type="primary" size="mini" @click="schemaAddOrUpdateHandle()">新增</el-button>
                     <el-button type="danger" size="mini">删除</el-button>
                     <el-button type="success" size="mini">导出</el-button>
                     <el-table :data="tableSchema" height="334px" border>
@@ -156,25 +156,39 @@
             <el-dialog :title="schemaFlag?'新增':'修改'" :close-on-click-modal="false" :visible.sync="schemaAddOrUpdateVisible">
                 <el-form :model="schemaForm" label-width="120px">
                     <el-form-item label="字段名称">
-                        <el-input v-model="schemaForm.columnName"></el-input>
+                        <el-input v-model="schemaForm.Field"></el-input>
                     </el-form-item>
                     <el-form-item label="数据类型">
-                        <el-input v-model="schemaForm.columnType"></el-input>
+                        <el-select v-model="schemaForm.Type">
+                            <el-option v-for="(item,index) in typeOptions" :key="index" :label="item" :value="item"></el-option>
+                        </el-select>
                     </el-form-item>
-                    <el-form-item label="字段长度">
-                        <el-input v-model="schemaForm.dataSize"></el-input>
-                    </el-form-item>
-                    <el-form-item label="是否为空">
-                        <el-input v-model="schemaForm.nullable"></el-input>
-                    </el-form-item>
-                    <el-form-item label="描述">
-                        <el-input v-model="schemaForm.remarks"></el-input>
-                    </el-form-item>
-                    <el-form-item label="索引">
-                        <el-input v-model="schemaForm.primaryKey"></el-input>
+                    <el-form-item label="数据长度" v-if="schemaForm.Size!==undefined">
+                        <el-input v-model="schemaForm.Size"></el-input>
                     </el-form-item>
                     <el-form-item label="默认值">
-                        <el-input v-model="schemaForm.defaultValue"></el-input>
+                        <el-input v-model="schemaForm.Default"></el-input>
+                    </el-form-item>
+                    <el-form-item label="其他">
+                        <el-input v-model="schemaForm.Extra"></el-input>
+                    </el-form-item>
+                    <el-form-item label="是否为空">
+                        <el-switch
+                                v-model="schemaForm.Null"
+                                active-color="#13ce66"
+                                inactive-color="#ff4949"
+                                active-value="YES"
+                                inactive-value="NO">
+                        </el-switch>
+                    </el-form-item>
+                    <el-form-item label="描述">
+                        <el-input v-model="schemaForm.Comment"></el-input>
+                    </el-form-item>
+                    <el-form-item label="索引">
+                        <el-radio-group v-model="schemaForm.Key">
+                            <el-radio-button label="PRI"></el-radio-button>
+                            <el-radio-button label="MUL"></el-radio-button>
+                        </el-radio-group>
                     </el-form-item>
                 </el-form>
                 <span slot="footer" class="dialog-footer">

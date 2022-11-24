@@ -7,6 +7,8 @@ import com.axfiber.dbflow.dto.SaveOrUpdateFormDto;
 import java.util.Map;
 
 /**
+ * 数据库Service
+ *
  * @author Zhan Xinjian
  * @date 2022/11/7
  */
@@ -63,6 +65,7 @@ public interface DbService {
 
     /**
      * 删除
+     *
      * @param dto 删除表单对象
      */
     void delete(DeleteFormDto dto);

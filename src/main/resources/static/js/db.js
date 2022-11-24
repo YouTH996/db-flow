@@ -10,7 +10,7 @@ const app = new Vue({
                 password: '123456',
                 dataBase: ''
             },
-            emptyVisible:true,
+            emptyVisible: true,
             table: '',
             tables: [],
             checkTables: [],
@@ -25,12 +25,55 @@ const app = new Vue({
             configVisible: true,
             //添加修改dialog
             addOrUpdateVisible: false,
-            schemaAddOrUpdateVisible:false,
+            schemaAddOrUpdateVisible: false,
             keyIndex: 0,
             primaryKey: undefined,
             addOrUpdateForm: [],
-            schemaFlag:false,
-            schemaForm:{}
+            schemaFlag: false,
+            schemaForm: {},
+            typeOptions:[
+                "bigint",
+                "binary",
+                "bit",
+                "blob",
+                "char",
+                "date",
+                "datetime",
+                "decimal",
+                "double",
+                "enum",
+                "float",
+                "geometry",
+                "geometrycollection",
+                "int",
+                "integer",
+                "json",
+                "linestring",
+                "longblob",
+                "linestring",
+                "longtext",
+                "mediumblob",
+                "mediumint",
+                "mediumtext",
+                "multilinestring",
+                "multipoint",
+                "multipolygon",
+                "numeric",
+                "point",
+                "polygon",
+                "real",
+                "set",
+                "smallint",
+                "text",
+                "time",
+                "timestamp",
+                "tinyblob",
+                "tinyint",
+                "tinytext",
+                "varbinary",
+                "varchar",
+                "year"
+            ]
         }
     },
     methods: {
@@ -69,6 +112,7 @@ const app = new Vue({
          * 获取表结构
          */
         getTableSchema() {
+            app.tableSchema=[]
             $.ajax({
                 type: 'GET',
                 url: '/db/getTableSchema',
@@ -82,7 +126,7 @@ const app = new Vue({
                 success(data) {
                     if (data && data.code === 0) {
                         const map = data.map;
-                        const childList=[]
+                        const childList = []
                         for (const child in map) {
                             childList.push(child)
                         }
@@ -106,7 +150,7 @@ const app = new Vue({
             app.getTableSchema()
         },
         handleClick(tab, _event) {
-            app.emptyVisible=false
+            app.emptyVisible = false
             app.table = app.checkTables[tab.index]
             //重置页码
             app.pageIndex = 1
@@ -148,7 +192,6 @@ const app = new Vue({
                                     for (let j = 0; j < columnNames.length; j++) {
                                         obj[columnNames[j]] = map[columnNames[j]][i];
                                     }
-                                    console.log(obj);
                                     app.dataList.push(obj)
                                 }
                             }
@@ -184,7 +227,7 @@ const app = new Vue({
             if (row) {
                 //获取主键
                 const keyRow = this.tableSchema.filter(item => {
-                    if (item.Key==='PRI') {
+                    if (item.Key === 'PRI') {
                         return true
                     }
                 })
@@ -230,13 +273,26 @@ const app = new Vue({
             }
             this.addOrUpdateVisible = true;
         },
-        schemaAddOrUpdateHandle(row){
-            console.log(row);
-            if(row){
-                app.schemaFlag=true
-                app.schemaForm=row
+        schemaAddOrUpdateHandle(row) {
+            this.schemaForm = {}
+            if (row) {
+                //深拷贝
+                const clone = JSON.parse(JSON.stringify(row))
+                app.schemaFlag = true
+                app.schemaForm = clone
+                if (clone.Type.includes("(")) {
+                    const type = clone.Type
+                    let start = type.indexOf("(") + 1;
+                    let end = type.indexOf(")");
+                    app.schemaForm.Size = type.substring(start, end)
+                    app.schemaForm.Type = type.substring(0, start - 1)
+                }
+                app.schemaForm.oldField=row.Field
+                app.schemaForm.oldKey=row.Key
+            }else{
+                app.schemaForm.Size=""
             }
-            app.schemaAddOrUpdateVisible=true
+            app.schemaAddOrUpdateVisible = true
         },
         addOrUpdateSubmit() {
             //找到remark对应的字段
@@ -274,8 +330,37 @@ const app = new Vue({
                 }
             });
         },
-        schemaAddOrUpdateSubmit(){
-
+        schemaAddOrUpdateSubmit() {
+            $.ajax({
+                type: 'POST',
+                url: `/schema/${app.schemaFlag ? 'update' : 'save'}`,
+                data: JSON.stringify({
+                    'dataBase': app.dataForm.dataBase,
+                    'tableName': app.table,
+                    'oldField': app.schemaForm.oldField,
+                    'Field': app.schemaForm.Field,
+                    'Type': app.schemaForm.Size?`${app.schemaForm.Type}(${app.schemaForm.Size})`:app.schemaForm.Type,
+                    "Null": app.schemaForm.Null,
+                    "Key": app.schemaForm.Key,
+                    "oldKey": app.schemaForm.oldKey,
+                    "Default": app.schemaForm.Default,
+                    "Extra": app.schemaForm.Extra,
+                    "Comment": app.schemaForm.Comment
+                }),
+                contentType: "application/json",
+                async: true,
+                dataType: 'json',
+                success(data) {
+                    if (data && data.code === 0) {
+                        app.$message.success("操作成功")
+                        app.schemaAddOrUpdateVisible = false
+                        app.getTableSchema()
+                        app.getDataList()
+                    } else {
+                        app.$message.error(data.msg)
+                    }
+                }
+            });
         },
         // 多选
         selectionChangeHandle(val) {
@@ -284,7 +369,7 @@ const app = new Vue({
         deleteHandle(row) {
             //获取主键
             const keyRow = this.tableSchema.filter(item => {
-                if (item.Key==='PRI') {
+                if (item.Key === 'PRI') {
                     return true
                 }
             })
@@ -299,7 +384,7 @@ const app = new Vue({
             const primaryKeys = row ? [app.keyIndex] : this.dataListSelections.map(item => {
                 return item[app.primaryKey]
             })
-            app.$confirm(`确定对[${app.primaryKey}=${primaryKeys.join(',')}]进行[${primaryKeys.length===1 ? '删除' : '批量删除'}]操作?`, '提示', {
+            app.$confirm(`确定对[${app.primaryKey}=${primaryKeys.join(',')}]进行[${primaryKeys.length === 1 ? '删除' : '批量删除'}]操作?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -326,9 +411,10 @@ const app = new Vue({
                         }
                     }
                 });
-            }).catch(() => {})
+            }).catch(() => {
+            })
         },
-        schemaDeleteHandle(row){
+        schemaDeleteHandle(row) {
 
         }
     }

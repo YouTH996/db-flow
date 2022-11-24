@@ -1,7 +1,8 @@
-package com.axfiber.dbflow.service;
+package com.axfiber.dbflow.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.axfiber.dbflow.dto.*;
+import com.axfiber.dbflow.service.DbService;
 import com.axfiber.dbflow.utils.DbUtils;
 import org.springframework.stereotype.Service;
 
@@ -9,6 +10,8 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 /**
+ * 数据库ServiceImpl
+ *
  * @author Zhan Xinjian
  * @date 2022/11/7
  */
