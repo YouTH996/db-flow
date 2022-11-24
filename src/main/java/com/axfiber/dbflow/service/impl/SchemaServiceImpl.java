@@ -1,10 +1,13 @@
 package com.axfiber.dbflow.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.axfiber.dbflow.dto.TableSchemaFormDto;
 import com.axfiber.dbflow.service.SchemaService;
 import com.axfiber.dbflow.utils.DbUtils;
 import com.axfiber.dbflow.utils.exception.CommonException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * 表结构ServiceImpl
@@ -56,7 +59,15 @@ public class SchemaServiceImpl implements SchemaService {
     @Override
     public void delete(TableSchemaFormDto dto) {
         //封装表结构更新SQL
-        String deleteSchemaSql = String.format("alter table %s drop %s", dto.getTableName(), dto.getField());
-        DbUtils.executeUpdateSql(deleteSchemaSql);
+        List<String> fieldList = JSON.parseArray(dto.getField(), String.class);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append(String.format("alter table %s ", dto.getTableName()));
+        for (int i = 0; i < fieldList.size(); i++) {
+            stringBuilder.append(String.format("drop %s", fieldList.get(i)));
+            if (i != fieldList.size() - 1) {
+                stringBuilder.append(" ,");
+            }
+        }
+        DbUtils.executeUpdateSql(stringBuilder.toString());
     }
 }

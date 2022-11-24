@@ -31,6 +31,7 @@ const app = new Vue({
             addOrUpdateForm: [],
             schemaFlag: false,
             schemaForm: {},
+            schemaDataListSelections:[],
             typeOptions:[
                 "bigint",
                 "binary",
@@ -366,6 +367,9 @@ const app = new Vue({
         selectionChangeHandle(val) {
             this.dataListSelections = val
         },
+        schemaSelectionChangeHandle(val) {
+            this.schemaDataListSelections = val
+        },
         deleteHandle(row) {
             //获取主键
             const keyRow = this.tableSchema.filter(item => {
@@ -404,7 +408,6 @@ const app = new Vue({
                     success(data) {
                         if (data && data.code === 0) {
                             app.$message.success("操作成功")
-                            app.addOrUpdateVisible = false
                             app.getDataList()
                         } else {
                             app.$message.error(data.msg)
@@ -415,7 +418,41 @@ const app = new Vue({
             })
         },
         schemaDeleteHandle(row) {
-
+            let deleteField=[]
+            if (row) {
+                deleteField = [row.Field]
+            }else{
+                deleteField=app.schemaDataListSelections.map(item => {
+                    return item.Field
+                })
+            }
+            app.$confirm(`确定对[字段名称=${deleteField.join(',')}]进行[${deleteField.length === 1 ? '删除' : '批量删除'}]操作?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                $.ajax({
+                    type: 'POST',
+                    url: `/schema/delete`,
+                    data: JSON.stringify({
+                        'tableName': app.table,
+                        'Field': JSON.stringify(deleteField)
+                    }),
+                    contentType: "application/json",
+                    async: true,
+                    dataType: 'json',
+                    success(data) {
+                        if (data && data.code === 0) {
+                            app.$message.success("操作成功")
+                            app.getTableSchema()
+                            app.getDataList()
+                        } else {
+                            app.$message.error(data.msg)
+                        }
+                    }
+                });
+            }).catch(() => {
+            })
         }
     }
 
