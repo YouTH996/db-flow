@@ -1,13 +1,19 @@
-body{
+html,
+body,
+#app{
     margin: 0;
     padding: 0;
+    height: 100%;
+    width: 100%;
 }
+
 .header{
     background: #000000;
-    height: 40px;
-    line-height: 40px;
+    height: 4%;
+    line-height: 4vh;
     display: flex;
     width: 100%;
+    z-index: 9999;
 }
 
 .menu-item{
@@ -33,13 +39,23 @@ body{
      color: #ebb563;
 }
 
+.content{
+    height: 96%;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 #map {
     width: 100%;
-    height: 900px;
+    height: 100%;
 }
 
 .title{
     margin-bottom: 10px;
     font-weight: bold;
+}
 
+.data-box{
+    padding: 0 10px 10px 20px;
 }

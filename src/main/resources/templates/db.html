@@ -18,8 +18,8 @@
         </div>
     </div>
     <div class="content">
-        <el-row :gutter="10" v-if="configVisible">
-            <el-col :span="4">
+        <el-row v-if="configVisible" class="config-box">
+            <el-col  :lg="12" :xl="4">
                 <el-card>
                     <div class="title">1.连接数据库</div>
                     <el-form :model="dataForm" label-width="80px">
@@ -44,7 +44,7 @@
                     </el-form>
                 </el-card>
             </el-col>
-            <el-col :span="8">
+            <el-col  :lg="12" :xl="8">
                 <el-card>
                     <div class="title">2.显示数据表</div>
                     <div style="height: 372px;width: 100%">
@@ -53,7 +53,7 @@
 
                 </el-card>
             </el-col>
-            <el-col :span="12">
+            <el-col  :lg="24" :xl="12">
                 <el-card>
                     <div class="title">3.修改数据表</div>
                     <el-select v-model="table" placeholder="请选择表" @change="tableChange" size="mini"
@@ -97,8 +97,7 @@
                 </el-card>
             </el-col>
         </el-row>
-        <el-row>
-            <el-card>
+        <el-row class="data-box">
                 <div style="text-align: center">
                     <i :class="`${configVisible?'el-icon-arrow-up':'el-icon-arrow-down'}`"
                        @click="configVisible=!configVisible" style="cursor: pointer"></i>
@@ -145,8 +144,6 @@
                         </div>
                     </el-tab-pane>
                 </el-tabs>
-            </el-card>
-
         </el-row>
         <!--更新或修改dialog-->
         <div>

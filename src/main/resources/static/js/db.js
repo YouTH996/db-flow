@@ -30,9 +30,20 @@ const app = new Vue({
             primaryKey: undefined,
             addOrUpdateForm: [],
             schemaFlag: false,
-            schemaForm: {},
-            schemaDataListSelections:[],
-            typeOptions:[
+            schemaForm: {
+                'oldField': "",
+                'Field': "",
+                'Type': "",
+                "Null":"",
+                "Key": "",
+                "oldKey": "",
+                "Default": "",
+                "Extra": "",
+                "Comment": "",
+                "Size": "",
+            },
+            schemaDataListSelections: [],
+            typeOptions: [
                 "bigint",
                 "binary",
                 "bit",
@@ -113,7 +124,7 @@ const app = new Vue({
          * 获取表结构
          */
         getTableSchema() {
-            app.tableSchema=[]
+            app.tableSchema = []
             $.ajax({
                 type: 'GET',
                 url: '/db/getTableSchema',
@@ -275,25 +286,39 @@ const app = new Vue({
             this.addOrUpdateVisible = true;
         },
         schemaAddOrUpdateHandle(row) {
-            this.schemaForm = {}
+            this.schemaForm = {
+                'oldField': "",
+                'Field': "",
+                'Type': "",
+                "Null":"",
+                "Key": "",
+                "oldKey": "",
+                "Default": "",
+                "Extra": "",
+                "Comment": "",
+                "Size": "",
+            }
+            app.schemaAddOrUpdateVisible = true
             if (row) {
                 //深拷贝
                 const clone = JSON.parse(JSON.stringify(row))
                 app.schemaFlag = true
-                app.schemaForm = clone
-                if (clone.Type.includes("(")) {
-                    const type = clone.Type
+                app.schemaForm.Field = clone.Field;
+                app.schemaForm.Type = clone.Type;
+                app.schemaForm.Key = clone.Key;
+                app.schemaForm.Default = clone.Default;
+                app.schemaForm.Extra = clone.Extra;
+                app.schemaForm.Comment = clone.Comment;
+                if (app.schemaForm.Type.includes("(")) {
+                    const type = app.schemaForm.Type
                     let start = type.indexOf("(") + 1;
                     let end = type.indexOf(")");
                     app.schemaForm.Size = type.substring(start, end)
                     app.schemaForm.Type = type.substring(0, start - 1)
                 }
-                app.schemaForm.oldField=row.Field
-                app.schemaForm.oldKey=row.Key
-            }else{
-                app.schemaForm.Size=""
+                app.schemaForm.oldField = row.Field
+                app.schemaForm.oldKey = row.Key
             }
-            app.schemaAddOrUpdateVisible = true
         },
         addOrUpdateSubmit() {
             //找到remark对应的字段
@@ -340,7 +365,7 @@ const app = new Vue({
                     'tableName': app.table,
                     'oldField': app.schemaForm.oldField,
                     'Field': app.schemaForm.Field,
-                    'Type': app.schemaForm.Size?`${app.schemaForm.Type}(${app.schemaForm.Size})`:app.schemaForm.Type,
+                    'Type': app.schemaForm.Size ? `${app.schemaForm.Type}(${app.schemaForm.Size})` : app.schemaForm.Type,
                     "Null": app.schemaForm.Null,
                     "Key": app.schemaForm.Key,
                     "oldKey": app.schemaForm.oldKey,
@@ -418,11 +443,11 @@ const app = new Vue({
             })
         },
         schemaDeleteHandle(row) {
-            let deleteField=[]
+            let deleteField = []
             if (row) {
                 deleteField = [row.Field]
-            }else{
-                deleteField=app.schemaDataListSelections.map(item => {
+            } else {
+                deleteField = app.schemaDataListSelections.map(item => {
                     return item.Field
                 })
             }
